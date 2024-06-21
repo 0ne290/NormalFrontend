@@ -13,6 +13,7 @@
   <title>Document</title>
 </head>
 <body>
+<div onclick="method2();">To PDF</div>
 <div class="container" id="report">
   <div class="row">
     <div class="col12 report-title">Телефонные абоненты</div>
@@ -49,17 +50,23 @@
 <script src="/js/html2canvas.min.js"></script>
 <script src="/js/jspdf.umd.min.js"></script>
 <script>
-const { jsPDF } = window.jspdf;
-const report = document.getElementById("report");
-html2canvas(report).then(canvas => {
-const imgData = canvas.toDataURL("image/png");
-const pdf = new jsPDF();
-const imgProps = pdf.getImageProperties(imgData);
-const pdfWidth = pdf.internal.pageSize.getWidth();
-const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-pdf.save("Report.pdf");
-});
+function method1() {
+  const { jsPDF } = window.jspdf;
+  const report = document.getElementById("report");
+  html2canvas(report).then(canvas => {
+  const imgData = canvas.toDataURL("image/png");
+  const pdf = new jsPDF();
+  const imgProps = pdf.getImageProperties(imgData);
+  const pdfWidth = pdf.internal.pageSize.getWidth();
+  const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+  pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+  pdf.save("Report.pdf");
+  });
+}
+
+function method2() {
+  window.print();
+}
 </script>
 </body>
 </html>

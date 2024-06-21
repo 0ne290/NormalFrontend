@@ -13,7 +13,7 @@
   <title>Document</title>
 </head>
 <body>
-<div class="container">
+<div class="container" id="report">
   <div class="row">
     <div class="col12 report-title">Телефонные абоненты</div>
   </div>
@@ -46,5 +46,17 @@
 <script src="/js/jquery-3.7.1.min.js"></script>
 <script src="/js/bootstrap.bundle.min.js"></script>
 <script src="/js/bootstrap-table.min.js"></script>
+<script src="/js/html2canvas.min.js"></script>
+<script src="/js/jspdf.umd.min.js"></script>
+<script>
+const { jsPDF } = window.jspdf;
+const htmlToPdfConverter = new jsPDF();
+const report = document.getElementById("report");
+htmlToPdfConverter.html(report, {
+  callback: function (htmlToPdfConverter) {
+    htmlToPdfConverter.save("Report.pdf");
+  }
+});
+</script>
 </body>
 </html>

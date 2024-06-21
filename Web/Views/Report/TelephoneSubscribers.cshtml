@@ -50,12 +50,15 @@
 <script src="/js/jspdf.umd.min.js"></script>
 <script>
 const { jsPDF } = window.jspdf;
-const htmlToPdfConverter = new jsPDF();
 const report = document.getElementById("report");
-htmlToPdfConverter.html(report, {
-  callback: function (htmlToPdfConverter) {
-    htmlToPdfConverter.save("Report.pdf");
-  }
+html2canvas(report).then(canvas => {
+const imgData = canvas.toDataURL("image/png");
+const pdf = new jsPDF();
+const imgProps = pdf.getImageProperties(imgData);
+const pdfWidth = pdf.internal.pageSize.getWidth();
+const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+pdf.save("Report.pdf");
 });
 </script>
 </body>

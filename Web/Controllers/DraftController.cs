@@ -1,5 +1,9 @@
+using System.Linq.Dynamic.Core;
+using System.Linq.Dynamic.Core.Exceptions;
+using System.Linq.Expressions;
 using System.Text;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Web.Commands;
@@ -12,8 +16,8 @@ namespace Web.Controllers;
 public class DraftController : Controller
 {
     [HttpPost]
-    [Route("index")]
-    public async Task<IActionResult> Index()
+    [Route("update")]
+    public async Task<IActionResult> Update()
     {
         try
         {
@@ -105,4 +109,64 @@ public class DraftController : Controller
             return BadRequest();
         }
     }
+    
+    [HttpGet]
+    [Route("get-by-filters")]
+    public async Task<IActionResult> GetByFilters(string filterString)
+    {
+        try
+        {
+            Console.WriteLine(filterString);
+
+            var drivers = new Driver[] { new(13), new(12), new(22) };
+            var filterExpression = DynamicExpressionParser.ParseLambda(typeof(Driver), typeof(bool), filterString);
+            var resultDrivers = drivers.AsQueryable().Where(filterExpression).ToList();
+
+            foreach (var driver in resultDrivers)
+                Console.WriteLine(driver.Salary);
+            Console.WriteLine();
+            foreach (var driver in drivers)
+                Console.WriteLine(driver.Salary);
+
+            return Ok();
+        }
+        catch (ParseException)
+        {
+            return BadRequest();
+        }
+    }
+    
+    [HttpGet]
+    [Route("get-by-guid/{guid}")]
+    public async Task<IActionResult> GetByGuid(string guid)
+    {
+        return Ok();
+    }
+    
+    [HttpGet]
+    [Route("get-all")]
+    public async Task<IActionResult> GetAll(string arg)
+    {
+        var c = DynamicExpressionParser.ParseLambda<string, bool>(new ParsingConfig(), true, "s => (new[] { \"One\", \"Two\", \"Three\" }).Contains(s)");
+        
+        return Ok(ExecuteExpression(c, arg));
+    }
+
+    private bool ExecuteExpression(Expression<Func<string, bool>> expression, string arg) =>
+        expression.Compile().Invoke(arg);
+}
+
+public class Driver
+{
+    public Driver(int salary) => SetSalary(salary);
+    
+    public void SetSalary(int salary)
+    {
+        if (salary < 10)
+            throw new ArgumentException("Too little.", nameof(salary));
+
+        Salary = salary;
+    }
+    
+    public int Salary { get; private set; }
 }
